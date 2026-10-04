@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "math-modeling-viz"
-version = "1.0.0"
-description = "Nature-level publication quality plots for mathematical modeling competitions (CUMCM/MCM/ICM)"
+version = "10.0.0"
+description = "Nature-level publication quality plots for mathematical modeling competitions (CUMCM/MCM/ICM) — 155+ chart types, one function call"
 readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.9"
@@ -13,19 +13,24 @@ authors = [
     {name = "Math Modeling Viz Contributors"}
 ]
 keywords = [
-    "mathematical-modeling", "visualization", "plotting", "cicum", "mcm",
-    "icm", "publication-quality", "data-science", "competition"
+    "mathematical-modeling", "visualization", "plotting", "cumcm", "mcm",
+    "icm", "publication-quality", "data-science", "competition",
+    "matplotlib", "charts", "scientific-visualization"
 ]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Science/Research",
+    "Intended Audience :: Education",
     "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering :: Visualization",
+    "Topic :: Scientific/Engineering :: Mathematics",
 ]
 dependencies = [
     "matplotlib>=3.7.0",
@@ -35,12 +40,22 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-extra = ["seaborn>=0.12.0", "networkx>=3.0", "scikit-learn>=1.3", "plotly>=5.15.0"]
-dev = ["pytest>=7.0"]
+extra = ["seaborn>=0.12.0", "networkx>=3.0", "scikit-learn>=1.3"]
+dev = ["pytest>=7.0", "black", "ruff"]
+
+[project.urls]
+Homepage = "https://github.com/shipnebula/Modeling_Drawing_Skill"
+Repository = "https://github.com/shipnebula/Modeling_Drawing_Skill"
+Issues = "https://github.com/shipnebula/Modeling_Drawing_Skill/issues"
+Changelog = "https://github.com/shipnebula/Modeling_Drawing_Skill/blob/main/CHANGELOG.md"
 
 [project.scripts]
-mmv = "scripts.render:main"
+mmv = "plot.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["scripts"]
 include = ["plot*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

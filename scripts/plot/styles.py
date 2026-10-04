@@ -307,6 +307,60 @@ COLOR_THEMES: dict[str, dict] = {
 
 
 # ──────────────────────────────────────────────
+#  CJK  FONT  AUTO-DETECTION
+# ──────────────────────────────────────────────
+
+_CJK_FONT_CANDIDATES: tuple[str, ...] = (
+    "Microsoft YaHei",   # Windows
+    "SimHei",            # Windows
+    "SimSun",            # Windows
+    "PingFang SC",       # macOS
+    "Hiragino Sans GB",  # macOS
+    "Noto Sans CJK SC",  # Linux
+    "Source Han Sans SC",
+    "WenQuanYi Micro Hei",
+    "Malgun Gothic",     # Korean
+)
+
+_cjk_fonts_cache: list[str] | None = None
+
+
+def detect_cjk_fonts() -> list[str]:
+    """Return CJK fonts installed on this system (scanned once)."""
+    global _cjk_fonts_cache
+    if _cjk_fonts_cache is not None:
+        return _cjk_fonts_cache
+    found: list[str] = []
+    try:
+        from matplotlib import font_manager
+        installed = {f.name for f in font_manager.fontManager.ttflist}
+        found = [f for f in _CJK_FONT_CANDIDATES if f in installed]
+    except Exception:
+        found = []
+    _cjk_fonts_cache = found
+    return found
+
+
+def setup_cjk() -> list[str]:
+    """
+    Prepend installed CJK fonts to ``font.sans-serif`` so Chinese /
+    Japanese / Korean labels render without manual rcParams edits.
+
+    Called automatically by :func:`apply_style`; safe to call directly.
+    Returns the fonts that were applied (empty if none found).
+    """
+    import matplotlib as mpl
+
+    found = detect_cjk_fonts()
+    if found:
+        current = [f for f in mpl.rcParams["font.sans-serif"]
+                   if f not in found]
+        mpl.rcParams["font.sans-serif"] = found + current
+        mpl.rcParams["axes.unicode_minus"] = False
+    return found
+
+
+# ──────────────────────────────────────────────
 #  API
 # ──────────────────────────────────────────────
 
@@ -344,9 +398,17 @@ def get_color_theme(style_name: str = "nature") -> dict:
     return dict(COLOR_THEMES[style_name])
 
 
+# Last style applied at global level — lets repeated calls with the
+# same name skip the (relatively slow) rcParams.update.
+_last_applied: str | None = None
+
+
 def apply_style(style_name: str = "nature") -> dict:
     """
     Apply a style preset to matplotlib's global rcParams.
+
+    Repeated calls with the same name are no-ops (cached), which keeps
+    per-figure overhead near zero in batch rendering.
 
     Parameters
     ----------
@@ -358,11 +420,188 @@ def apply_style(style_name: str = "nature") -> dict:
     dict
         The rcParams that were applied.
     """
+    global _last_applied
     import matplotlib as mpl
+
+    if style_name == _last_applied:
+        return get_style_config(style_name)
 
     config = get_style_config(style_name)
     mpl.rcParams.update(config)
+    _last_applied = style_name
+    setup_cjk()
     return config
+
+
+def use_latex(enabled: bool = True):
+    """Context manager to render all text with LaTeX/mathtext.
+
+    Uses real LaTeX when installed (``text.usetex``), otherwise falls
+    back to matplotlib's built-in mathtext so math never breaks.
+
+    >>> with use_latex():
+    ...     plot(x, y, title=r"$\\eta$ vs $\\tau$", xlabel=r"$t/\\mathrm{s}$")
+    """
+    import matplotlib as mpl
+
+    class _Latex:
+        def __enter__(self):
+            self._old = {k: mpl.rcParams[k] for k in (
+                "text.usetex", "text.latex.preamble", "font.family")}
+            try:
+                mpl.rcParams["text.usetex"] = bool(enabled)
+            except Exception:
+                pass
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            mpl.rcParams.update(self._old)
+            return False
+
+    return _Latex()
+
+
+# ──────────────────────────────────────────────
+#  THEMES  (style + palette bundles)
+# ──────────────────────────────────────────────
+
+THEMES: dict[str, dict] = {
+    # classic paper themes
+    "nature": {"style": "nature", "palette": "nature_qual"},
+    "publication": {"style": "publication", "palette": "nature_qual"},
+    "economist": {"style": "economist", "palette": "economist"},
+    "dark": {"style": "dark", "palette": "vivid_dark"},
+    "poster": {"style": "poster", "palette": "nature_qual"},
+    # accessibility-first themes
+    "colorblind": {"style": "nature", "palette": "tol_8"},
+    "colorblind_dark": {"style": "dark", "palette": "tol_8"},
+    "morandi_paper": {"style": "nature", "palette": "morandi"},
+    # analysis-flavored themes
+    "ocean": {"style": "nature", "palette": "ocean"},
+    "sunset_report": {"style": "economist", "palette": "sunset"},
+    "forest_report": {"style": "nature", "palette": "forest"},
+}
+
+
+def apply_theme(name: str = "nature") -> dict:
+    """
+    Apply a curated theme — a style preset + palette + sensible
+    defaults in one call (e.g. 'colorblind' for accessibility-first
+    figures, 'dark' for slides).
+
+    Returns
+    -------
+    dict
+        The theme definition that was applied.
+
+    See Also
+    --------
+    list_themes
+    """
+    if name not in THEMES:
+        raise ValueError(f"Unknown theme '{name}'. Available: {sorted(THEMES)}")
+    theme = dict(THEMES[name])
+    apply_style(theme["style"])
+    from .palette import auto_colors
+    auto_colors(8, theme["palette"])  # warm the palette cache
+    return theme
+
+
+def list_themes() -> list[str]:
+    """Return all available theme names."""
+    return sorted(THEMES)
+
+
+# ──────────────────────────────────────────────
+#  USER  CONFIG  (.mmvrc.json)
+# ──────────────────────────────────────────────
+
+
+def load_config(path: str | None = None) -> dict:
+    """
+    Apply user defaults from a JSON config and return it.
+
+    Recognized keys: ``style``, ``palette``, ``theme``, ``dpi``,
+    ``figsize``. With no ``path``, searches ``./.mmvrc.json`` then
+    ``~/.mmvrc.json`` (first hit wins).
+
+    Example ``.mmvrc.json``::
+
+        {"theme": "colorblind", "dpi": 200, "figsize": [9, 5]}
+
+    Called automatically at import when such a file exists next to the
+    running script — project-local look defaults with zero code.
+    """
+    import json
+    import os
+
+    if path is None:
+        for candidate in (os.path.join(os.getcwd(), ".mmvrc.json"),
+                          os.path.join(os.path.expanduser("~"), ".mmvrc.json")):
+            if os.path.exists(candidate):
+                path = candidate
+                break
+    if path is None or not os.path.exists(path):
+        return {}
+
+    with open(path, encoding="utf-8") as fh:
+        cfg = json.load(fh)
+
+    if "theme" in cfg:
+        apply_theme(cfg["theme"])
+    elif "style" in cfg:
+        apply_style(cfg["style"])
+    if "palette" in cfg:
+        import matplotlib as mpl
+        from .palette import get_palette
+        try:
+            mpl.rcParams["axes.prop_cycle"] = mpl.cycler(
+                color=get_palette(cfg["palette"]))
+        except ValueError:
+            pass
+    if "dpi" in cfg:
+        import matplotlib as mpl
+        mpl.rcParams["figure.dpi"] = cfg["dpi"]
+        mpl.rcParams["savefig.dpi"] = cfg["dpi"]
+    if "figsize" in cfg:
+        import matplotlib as mpl
+        mpl.rcParams["figure.figsize"] = list(cfg["figsize"])
+    return cfg
+
+
+class style:
+    """
+    Context manager for temporary styles — the original style is
+    restored on exit.
+
+    Example
+    -------
+    >>> from plot import style
+    >>> with style("dark"):
+    ...     fig = plot(data)          # rendered dark
+    ...     fig.savefig("dark.png")
+    >>> fig = plot(data)              # back to the previous style
+    """
+
+    def __init__(self, style_name: str = "nature"):
+        self.name = style_name
+        self._previous: str | None = None
+        self._previous_params: dict | None = None
+
+    def __enter__(self):
+        import matplotlib as mpl
+        self._previous = _last_applied
+        self._previous_params = {k: mpl.rcParams[k]
+                                 for k in get_style_config(self.name)}
+        apply_style(self.name)
+        return self
+
+    def __exit__(self, exc_type, exc, tb):
+        import matplotlib as mpl
+        if self._previous_params:
+            mpl.rcParams.update(self._previous_params)
+        globals()["_last_applied"] = self._previous
+        return False
 
 
 def apply_style_to_axes(ax, style_name: str = "nature") -> None:
@@ -423,4 +662,12 @@ __all__ = [
     "apply_style_to_axes",
     "list_styles",
     "COLOR_THEMES",
+    "detect_cjk_fonts",
+    "setup_cjk",
+    "style",
+    "use_latex",
+    "apply_theme",
+    "list_themes",
+    "THEMES",
+    "load_config",
 ]

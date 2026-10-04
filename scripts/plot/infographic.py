@@ -170,7 +170,7 @@ def _draw_kpi_card(
                 va="center", zorder=4)
 
     # Sparkline
-    if sparkline and len(sparkline) > 1:
+    if sparkline is not None and len(sparkline) > 1:
         sl_ax = ax.inset_axes([0.05, 0.65, 0.45, 0.2])
         sl_ax.plot(sparkline, color=color, linewidth=1.5, alpha=0.8)
         sl_ax.fill_between(range(len(sparkline)), sparkline, alpha=0.1, color=color)
@@ -231,8 +231,8 @@ def kpi_card(
 # ──────────────────────────────────────────────
 
 def bullet_chart(
-    actual: float,
-    target: float,
+    actual: float | Sequence,
+    target: float | Sequence,
     min_val: float = 0,
     max_val: float | None = None,
     title: str = "Bullet Chart",
@@ -246,6 +246,7 @@ def bullet_chart(
     ok_color: str = "#FFF9C4",
     poor_color: str = "#FFEBEE",
     benchmarks: Sequence[float] | None = None,
+    labels: Sequence[str] | None = None,
     show_values: bool = True,
     value_fontsize: float = 9,
     save_path: str | None = None,
@@ -264,63 +265,81 @@ def bullet_chart(
         Scale range.
     benchmarks : list of float, optional
         Benchmark lines.
+    labels : list of str, optional
+        Row labels when ``actual``/``target`` are lists (multi-bullet).
     good_color, ok_color, poor_color : str
         Background colors for target ranges.
     """
     fig, ax = setup_figure(figsize, **kwargs)
 
+    multi = not np.isscalar(actual)
+    actuals = list(actual) if multi else [actual]
+    targets = list(target) if not np.isscalar(target) else [target] * len(actuals)
+    if labels is None and isinstance(actual, (list, tuple)) and all(
+            isinstance(v, str) for v in actual):
+        labels = list(actual)
+        actuals = [v for v in actual if not isinstance(v, str)]
+    n = len(actuals)
+
     if max_val is None:
-        max_val = max(abs(actual), abs(target)) * 1.2
+        max_val = max(max(abs(a), abs(t)) for a, t in zip(actuals, targets)) * 1.2
 
     ax.set_xlim(min_val, max_val)
-    ax.set_ylim(0, 1)
+    ax.set_ylim(0, n)
     ax.axis("off")
 
-    # Background ranges (target zones)
-    range1 = max_val / 3
-    range2 = max_val * 2 / 3
+    # Background ranges (target zones), one row band per bullet
+    range1 = min_val + (max_val - min_val) / 3
+    range2 = min_val + 2 * (max_val - min_val) / 3
 
-    ax.add_patch(Rectangle(
-        (min_val, 0), range1 - min_val, 1,
-        facecolor=poor_color, edgecolor="none", zorder=1,
-    ))
-    ax.add_patch(Rectangle(
-        (range1, 0), range2 - range1, 1,
-        facecolor=ok_color, edgecolor="none", zorder=1,
-    ))
-    ax.add_patch(Rectangle(
-        (range2, 0), max_val - range2, 1,
-        facecolor=good_color, edgecolor="none", zorder=1,
-    ))
+    for r in range(n):
+        y0, y1 = r, r + 1
+        ax.add_patch(Rectangle(
+            (min_val, y0 + 0.1), range1 - min_val, 0.8,
+            facecolor=poor_color, edgecolor="none", zorder=1,
+        ))
+        ax.add_patch(Rectangle(
+            (range1, y0 + 0.1), range2 - range1, 0.8,
+            facecolor=ok_color, edgecolor="none", zorder=1,
+        ))
+        ax.add_patch(Rectangle(
+            (range2, y0 + 0.1), max_val - range2, 0.8,
+            facecolor=good_color, edgecolor="none", zorder=1,
+        ))
 
-    # Benchmark bars
-    if benchmarks:
-        for bm in benchmarks:
-            ax.plot([bm, bm], [0.35, 0.65], color=benchmark_color,
-                    linewidth=4, zorder=3)
+        # Benchmark bars
+        if benchmarks:
+            for bm in benchmarks:
+                ax.plot([bm, bm], [r + 0.42, r + 0.62],
+                        color=benchmark_color, linewidth=3.5, zorder=3)
 
-    # Actual bar
-    actual_width = actual - min_val
-    ax.add_patch(Rectangle(
-        (min_val, 0.35), actual_width, 0.3,
-        facecolor=actual_color, edgecolor="white", linewidth=1,
-        alpha=0.9, zorder=4,
-    ))
+        # Actual bar
+        actual_val, target_val = actuals[r], targets[r]
+        ax.add_patch(Rectangle(
+            (min_val, y0 + 0.42), actual_val - min_val, 0.22,
+            facecolor=actual_color, edgecolor="white", linewidth=1,
+            alpha=0.9, zorder=4,
+        ))
+        # Target line
+        ax.plot([target_val, target_val], [y0 + 0.28, y0 + 0.78],
+                color=target_color, linewidth=2.2, zorder=5)
 
-    # Target line
-    ax.plot([target, target], [0.2, 0.8], color=target_color,
-            linewidth=2.5, zorder=5)
-
-    if show_values:
-        ax.text(actual_width + min_val + 0.05, 0.5, f"{actual:.2f}",
-                fontsize=value_fontsize, color=actual_color,
-                fontweight="bold", va="center", zorder=6)
-        ax.text(target, 0.85, f"Target: {target:.2f}",
-                fontsize=value_fontsize - 1, color=target_color,
-                ha="center", va="bottom", zorder=6)
+        if labels is not None and r < len(labels):
+            ax.text(min_val - (max_val - min_val) * 0.015, y0 + 0.5,
+                    str(labels[r]), ha="right", va="center",
+                    fontsize=value_fontsize + 1, color="#333333", zorder=6)
+        if show_values:
+            ax.text(actual_val + (max_val - min_val) * 0.015, y0 + 0.5,
+                    f"{actual_val:.2f}", fontsize=value_fontsize,
+                    color=actual_color, fontweight="bold", va="center",
+                    zorder=6)
+            ax.text(target_val, y0 + 0.86, f"{target_val:.2f}",
+                    fontsize=value_fontsize - 1, color=target_color,
+                    ha="center", va="bottom", zorder=6)
 
     if title:
-        ax.set_title(title, fontsize=11, fontweight="bold", pad=8)
+        ax.set_title(title, fontsize=11, fontweight="bold",
+                     pad=8, x=0.62 if labels else 0.5)
     if xlabel:
         ax.text(0.5, -0.15, xlabel, transform=ax.transAxes,
                 fontsize=9, ha="center", color="#666666")
@@ -780,8 +799,161 @@ def comparison_bar(
     return fig
 
 
+# ──────────────────────────────────────────────
+#  DONUT  PROGRESS  RINGS
+# ──────────────────────────────────────────────
+
+def donut_rings(
+    values: Sequence[float],
+    labels: Sequence[str] | None = None,
+    title: str | None = None,
+    figsize: tuple = (6.5, 6.5),
+    palette: str = "nature_qual",
+    center_text: str | None = None,
+    ring_width: float = 0.16,
+    gap_deg: float = 3,
+    track_color: str = "#EEEEEE",
+    show_pct: bool = True,
+    save_path: str | None = None,
+    **kwargs,
+) -> plt.Figure:
+    """
+    Concentric progress rings — dashboard-style completion view of
+    several KPIs (each value in [0, 1], or normalized automatically).
+
+    Returns
+    -------
+    Figure
+    """
+    vals = np.asarray(values, float).ravel()
+    if vals.max() > 1.0:
+        vals = vals / vals.max()
+    vals = np.clip(vals, 0, 1)
+    n = len(vals)
+    labels = list(labels) if labels else [f"KPI {i + 1}" for i in range(n)]
+    colors = auto_colors(n, palette)
+
+    kwargs.pop("style", None)
+    fig, ax = setup_figure(figsize, style="nature", **kwargs)
+    ax.set_aspect("equal")
+    ax.axis("off")
+
+    for i, (v, col, lab) in enumerate(zip(vals, colors, labels)):
+        r_outer = 1.0 - i * (ring_width + 0.035)
+        r_inner = r_outer - ring_width
+        theta_track = np.linspace(gap_deg, 360 - gap_deg, 200)
+        ax.fill(
+            np.r_[r_outer * np.cos(np.deg2rad(theta_track)),
+                  (r_inner * np.cos(np.deg2rad(theta_track)))[::-1]],
+            np.r_[r_outer * np.sin(np.deg2rad(theta_track)),
+                  (r_inner * np.sin(np.deg2rad(theta_track)))[::-1]],
+            color=track_color, lw=0, zorder=1,
+        )
+        theta_v = np.linspace(90 + gap_deg, 90 + gap_deg + (360 - 2 * gap_deg) * v, 200)
+        ax.fill(
+            np.r_[r_outer * np.cos(np.deg2rad(theta_v)),
+                  (r_inner * np.cos(np.deg2rad(theta_v)))[::-1]],
+            np.r_[r_outer * np.sin(np.deg2rad(theta_v)),
+                  (r_inner * np.sin(np.deg2rad(theta_v)))[::-1]],
+            color=col, lw=0, zorder=2,
+        )
+        mid_r = (r_outer + r_inner) / 2
+        label_ang = np.deg2rad(90 + gap_deg + (360 - 2 * gap_deg) * v)
+        if show_pct:
+            ax.text(mid_r * np.cos(label_ang - 0.22),
+                    mid_r * np.sin(label_ang - 0.22), f"{v:.0%}",
+                    ha="center", va="center", fontsize=8, color=col,
+                    fontweight="bold", zorder=3)
+        ax.text(0, mid_r, lab, ha="center", va="center", fontsize=8.5,
+                color="#333333", zorder=3)
+
+    if center_text:
+        ax.text(0, 0, center_text, ha="center", va="center",
+                fontsize=13, fontweight="bold", color="#1D3557")
+    if title:
+        ax.set_title(title, fontsize=12, fontweight="bold", pad=10)
+    fig.tight_layout()
+    if save_path:
+        save_figure(fig, save_path)
+    return fig
+
+
 __all__ = [
     "dashboard", "kpi_card", "bullet_chart",
     "sparkline", "gauge", "process_flow",
-    "mind_map", "comparison_bar",
+    "mind_map", "comparison_bar", "donut_rings", "risk_matrix",
 ]
+
+
+# ──────────────────────────────────────────────
+#  RISK  MATRIX  (probability x impact)
+# ──────────────────────────────────────────────
+
+def risk_matrix(
+    risks: dict,
+    title: str = "Risk Matrix",
+    figsize: tuple = (8.5, 6.5),
+    x_label: str = "Impact",
+    y_label: str = "Probability",
+    x_levels: int = 5,
+    y_levels: int = 5,
+    palette: str = "RdYlGn_r",
+    label_size: float = 7.5,
+    save_path: str | None = None,
+    **kwargs,
+) -> plt.Figure:
+    """
+    Risk matrix — items placed on a probability × impact grid with a
+    green-to-red background. ``risks`` maps item name to
+    ``(impact 1-5, probability 1-5)``.
+
+    Returns
+    -------
+    Figure
+    """
+    from matplotlib.colors import LinearSegmentedColormap
+
+    kwargs.pop("style", None)
+    fig, ax = setup_figure(figsize, style="nature", **kwargs)
+
+    # background score grid (impact + probability)
+    bg = np.add.outer(np.arange(1, y_levels + 1), np.arange(1, x_levels + 1))
+    cmap = LinearSegmentedColormap.from_list(
+        "risk", ["#7CC576", "#F5D76E", "#E74C3C"])
+    ax.imshow(bg, cmap=cmap, origin="lower", alpha=0.75,
+              extent=(0.5, x_levels + 0.5, 0.5, y_levels + 0.5),
+              aspect="auto")
+
+    cell_counts: dict = {}
+    for name, (imp, prob) in risks.items():
+        key = (int(round(imp)), int(round(prob)))
+        cell_counts.setdefault(key, []).append(str(name))
+
+    n_cells = max(len(v) for v in cell_counts.values()) if cell_counts else 1
+    for (imp, prob), names in cell_counts.items():
+        offsets = np.linspace(-0.18 * (len(names) - 1), 0.18 * (len(names) - 1),
+                              len(names))
+        for dx, name in zip(offsets, names):
+            ax.plot(imp, prob, "o", ms=11, mfc="white", mec="#333333",
+                    mew=1.1, zorder=4)
+            ax.text(imp, prob + 0.13, name, ha="center", va="bottom",
+                    fontsize=label_size, color="#1A1A1A", zorder=5)
+
+    ax.set_xticks(range(1, x_levels + 1))
+    ax.set_yticks(range(1, y_levels + 1))
+    ax.set_xticklabels(["Very low", "Low", "Medium", "High", "Very high"][:x_levels],
+                       fontsize=8.5)
+    ax.set_yticklabels(["Very low", "Low", "Medium", "High", "Very high"][:y_levels],
+                       fontsize=8.5)
+    ax.set_xlim(0.5, x_levels + 0.5)
+    ax.set_ylim(0.5, y_levels + 0.5)
+    ax.set_xlabel(x_label)
+    ax.set_ylabel(y_label)
+    ax.grid(color="white", lw=1.5)
+    ax.set_axisbelow(False)
+    if title:
+        ax.set_title(title, fontsize=12, fontweight="bold", pad=12)
+    fig.tight_layout()
+    if save_path:
+        save_figure(fig, save_path)
+    return fig

@@ -20,7 +20,10 @@ Usage:
 from __future__ import annotations
 
 import colorsys
+from functools import lru_cache
 from typing import List
+
+import numpy as np
 
 
 # ──────────────────────────────────────────────
@@ -92,7 +95,7 @@ QUALITATIVE: dict[str, list[str]] = {
     # Paul Tol – colorblind-safe (https://www.sci.muni.ca/~tol/colour/)
     "tol_8": [
         "#4472C4", "#ED7D31", "#5B9BD5", "#70AD47",
-        "#FFC000", "#7030A0", "#00B0F0", "#FFC000",
+        "#FFC000", "#7030A0", "#00B0F0", "#666666",
     ],
 
     "tol_8_unique": [
@@ -121,7 +124,7 @@ QUALITATIVE: dict[str, list[str]] = {
     # Dark mode — vibrant on dark background
     "neon": [
         "#00F5D4", "#F15BB5", "#FEE440", "#9B5DE5",
-        "#00BBF9", "#F15BB5", "#00F5D4", "#9B5DE5",
+        "#00BBF9", "#FF6E40", "#B2FF59", "#FFC400",
     ],
 
     # Grayscale — for B&W printing
@@ -163,6 +166,36 @@ QUALITATIVE: dict[str, list[str]] = {
     "metal": [
         "#FFD700", "#C0C0C0", "#CD7F32", "#808080",
         "#E5E4E2", "#B76E79", "#C0A062", "#84BBFF",
+    ],
+
+    # "Morandi" — low-saturation, elegant; popular in CUMCM papers
+    "morandi": [
+        "#88A0A8", "#C2A8A0", "#A8B8A0", "#B8A8B8",
+        "#A0A8C0", "#C0B8A0", "#88B0B8", "#C09898",
+    ],
+
+    # ColorBrewer Set2 — print-friendly qualitative
+    "brewer_set2": [
+        "#66C2A5", "#FC8D62", "#8DA0CB", "#E78AC3",
+        "#A6D854", "#FFD92F", "#E5C494", "#B3B3B3",
+    ],
+
+    # ColorBrewer Dark2 — high-contrast qualitative
+    "brewer_dark2": [
+        "#1B9E77", "#D95F02", "#7570B3", "#E7298A",
+        "#66A61E", "#E6AB02", "#A6761D", "#666666",
+    ],
+
+    # "Finance" — up/down semantics (green positive, red negative)
+    "finance": [
+        "#26A69A", "#EF5350", "#42A5F5", "#FFA726",
+        "#66BB6A", "#EC407A", "#26C6DA", "#AB47BC",
+    ],
+
+    # "Neon line" — vivid dark-mode series with good separation
+    "vivid_dark": [
+        "#00E5FF", "#FF4081", "#76FF03", "#FFC400",
+        "#D500F9", "#FF6E40", "#00B0FF", "#B2FF59",
     ],
 }
 
@@ -299,6 +332,26 @@ THEME: dict[str, list[str]] = {
 }
 
 
+@lru_cache(maxsize=None)
+def _get_palette_cached(name: str, family: str | None = None) -> tuple[str, ...]:
+    families = {
+        "qualitative": QUALITATIVE,
+        "sequential": SEQUENTIAL,
+        "diverging": DIVERGING,
+        "theme": THEME,
+    }
+    if family:
+        pool = families.get(family.lower(), {})
+    else:
+        pool = {**QUALITATIVE, **SEQUENTIAL, **DIVERGING, **THEME}
+    if name not in pool:
+        available = sorted(pool.keys())
+        raise ValueError(
+            f"Unknown palette '{name}'. Available: {available[:15]}…"
+        )
+    return tuple(pool[name])
+
+
 def get_palette(name: str, family: str | None = None) -> list[str]:
     """
     Return a full palette by name.
@@ -316,23 +369,7 @@ def get_palette(name: str, family: str | None = None) -> list[str]:
     list[str]
         Hex color strings.
     """
-    families = {
-        "qualitative": QUALITATIVE,
-        "sequential": SEQUENTIAL,
-        "diverging": DIVERGING,
-        "theme": THEME,
-    }
-    if family:
-        pool = families.get(family.lower(), {})
-    else:
-        pool = {**QUALITATIVE, **SEQUENTIAL, **DIVERGING, **THEME}
-
-    if name not in pool:
-        available = sorted(pool.keys())
-        raise ValueError(
-            f"Unknown palette '{name}'. Available: {available[:15]}…"
-        )
-    return list(pool[name])
+    return list(_get_palette_cached(name, family))
 
 
 def get_color(name: str, index: int = 0, family: str | None = None) -> str:
@@ -395,15 +432,7 @@ def sequential_colormap(
         *n* interpolated hex colors.
     """
     pal = get_palette(name, "sequential")
-    start_rgb = _hex_to_rgb(pal[0])
-    end_rgb = _hex_to_rgb(pal[-1])
-    return [
-        _rgb_to_hex(tuple(
-            int(start_rgb[i] + (end_rgb[i] - start_rgb[i]) * k / (n - 1))
-            for i in range(3)
-        ))
-        for k in range(n)
-    ]
+    return _interpolate_hex(pal[0], pal[-1], n)
 
 
 def diverging_colormap(
@@ -412,15 +441,17 @@ def diverging_colormap(
 ) -> list[str]:
     """Build a smooth diverging colormap."""
     pal = get_palette(name, "diverging")
-    start_rgb = _hex_to_rgb(pal[0])
-    end_rgb = _hex_to_rgb(pal[-1])
-    return [
-        _rgb_to_hex(tuple(
-            int(start_rgb[i] + (end_rgb[i] - start_rgb[i]) * k / (n - 1))
-            for i in range(3)
-        ))
-        for k in range(n)
-    ]
+    return _interpolate_hex(pal[0], pal[-1], n)
+
+
+def _interpolate_hex(start: str, end: str, n: int) -> list[str]:
+    """Vectorized linear interpolation between two hex colors (numpy)."""
+    sv = np.array(_hex_to_rgb(start), dtype=float)
+    ev = np.array(_hex_to_rgb(end), dtype=float)
+    t = np.linspace(0.0, 1.0, n)[:, None]
+    rgb = sv + (ev - sv) * t
+    rgb = np.clip(np.rint(rgb), 0, 255).astype(int)
+    return [_rgb_to_hex(tuple(row)) for row in rgb]
 
 
 def blend(c1: str, c2: str, t: float = 0.5) -> str:

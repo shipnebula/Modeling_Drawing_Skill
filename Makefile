@@ -1,4 +1,4 @@
-.PHONY: install test examples lint clean
+.PHONY: install test gallery banner cli lint format clean verify
 
 # Install dependencies
 install:
@@ -8,9 +8,17 @@ install:
 test:
 	python -m pytest tests/ -v
 
-# Generate example figures
-examples:
-	python examples/generate_examples.py
+# Regenerate the documentation gallery (docs/images/)
+gallery:
+	python examples/gallery.py
+
+# Regenerate the README banner
+banner:
+	python examples/banner.py
+
+# Run the CLI end-to-end
+cli:
+	python -m plot.cli types
 
 # Run linters
 lint:
@@ -23,7 +31,8 @@ format:
 
 # Clean generated files
 clean:
-	rm -rf __pycache__/ .pytest_cache/ build/ dist/ *.egg-info/
+	rm -rf __pycache__/ .pytest_cache/ build/ dist/ *.egg-info/ figures/
+	find . -name "__pycache__" -not -path "./.venv/*" -not -path "./.git/*" -exec rm -rf {} +
 
 # Full verification
-verify: test examples
+verify: test gallery

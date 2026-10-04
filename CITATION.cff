@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "If you use Math Modeling Viz in your research or competition paper, please cite it."
+title: Math Modeling Viz
+abstract: >-
+  A Python library that generates publication-quality figures for
+  mathematical modeling competitions (CUMCM, MCM, ICM) and academic
+  papers. Provides 70+ chart types, curated color palettes, journal
+  style presets, smart chart auto-detection, and multi-panel composite
+  figures through a universal plot() interface.
+authors:
+  - name: Math Modeling Viz Contributors
+version: 10.0.0
+date-released: "2026-10-02"
+license: MIT
+repository-code: "https://github.com/shipnebula/Modeling_Drawing_Skill"
+keywords:
+  - mathematical-modeling
+  - data-visualization
+  - matplotlib
+  - publication-quality
+  - CUMCM
+  - MCM
+  - ICM

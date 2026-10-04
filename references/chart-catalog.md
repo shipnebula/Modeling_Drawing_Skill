@@ -393,3 +393,162 @@ plot(['A', 'B', 'C'], [85, 72, 90], target=80,
 from plot import list_chart_types
 print(list_chart_types())
 ```
+
+---
+
+# Sciences & Statistics charts (v2.0)
+
+Scientific-computing and statistical charts added in v2.0. All accept
+`title`, `figsize`, `save_path`; images live in `docs/images/`.
+
+| Chart | Call | Example image |
+|---|---|---|
+| 3-D surface | `plot(X, Y, Z, type='surface')` | [surface3d](../docs/images/42_surface3d.png) |
+| Contour map | `plot(x, y, Z, type='contour', mark_min=True)` | [contour](../docs/images/43_contour.png) |
+| Vector field | `plot(x, y, u, v, type='vector', mode='both')` | [vector field](../docs/images/44_vector_field.png) |
+| Phase portrait | `plot(x, y, type='phase')` | [phase](../docs/images/45_phase_portrait.png) |
+| Dual axis | `plot(x, y1, y2, type='twin')` | [twin axis](../docs/images/46_twin_axis.png) |
+| Confidence band | `plot(x, y, yerr=err, type='band')` | [errorband](../docs/images/47_errorband.png) |
+| Annotated heatmap | `plot(matrix, type='heatmap', row_labels=..., col_labels=...)` | [heatmap](../docs/images/48_heatmap.png) |
+| Optimizer trace | `plot(f, path, type='trace')` | [trace](../docs/images/49_optimization_trace.png) |
+| Wind rose | `plot(theta, r, type='polar', zero_location='N', clockwise=True)` | [polar](../docs/images/50_polar.png) |
+| Log-log lines | `plot(series, type='loglog', show_fit_slope=True)` | [loglog](../docs/images/51_loglog.png) |
+| Q-Q plot | `plot(sample, type='qq')` | [qq](../docs/images/52_qq.png) |
+| Empirical CDF | `plot(groups, type='ecdf')` | [ecdf](../docs/images/53_ecdf.png) |
+| Ridgeline | `plot(groups, type='ridge')` | [ridgeline](../docs/images/54_ridgeline.png) |
+| Hexbin | `plot(x, y, type='hexbin')` | [hexbin](../docs/images/55_hexbin.png) |
+| Stem / lollipop | `plot(x, y, type='stem')` | [stem](../docs/images/56_stem.png) |
+| Error bars | `plot(x, y, yerr, type='errorbar')` | [errorbar](../docs/images/57_errorbar.png) |
+| Bubble | `plot(x, y, sizes, type='bubble')` | [bubble](../docs/images/58_bubble.png) |
+| Bump | `plot(ranks, type='bump')` | [bump](../docs/images/59_bump.png) |
+| Stream graph | `plot(series, type='streamgraph')` | [stream](../docs/images/60_streamgraph.png) |
+| Funnel | `plot(stages, values, type='funnel')` | [funnel](../docs/images/61_funnel.png) |
+| Waffle | `plot(values, labels=..., type='waffle')` | [waffle](../docs/images/62_waffle.png) |
+| Pyramid | `plot(labels, left, right, type='pyramid')` | [pyramid](../docs/images/63_pyramid.png) |
+| Sunburst | `plot(tree, type='sunburst')` | [sunburst](../docs/images/64_sunburst.png) |
+| Icicle | `plot(tree, type='icicle')` | [icicle](../docs/images/65_icicle.png) |
+| Mosaic | `plot(counts, type='mosaic')` | [mosaic](../docs/images/66_mosaic.png) |
+| Dendrogram | `plot(observations, type='dendrogram')` | [dendrogram](../docs/images/67_dendrogram.png) |
+| Distribution panel | `plot(sample, type='distpanel')` | [panel](../docs/images/68_distribution_panel.png) |
+| Scatter matrix | `plot(matrix, type='pairplot')` | [pairs](../docs/images/69_scatter_matrix.png) |
+| Multi-panel figure | `panel_figure([specs], ncols=2)` | [composite](../docs/images/70_panel_figure.png) |
+
+---
+
+# Calculus, ML & diagram charts (v3.0)
+
+| Chart | Call | Example image |
+|---|---|---|
+| Definite integral | `plot(f, type='integral', a=0, b=2)` | [auc](../docs/images/71_auc.png) |
+| Riemann sum | `plot(f, type='riemann', a=0, b=2, n=9)` | [riemann](../docs/images/72_riemann.png) |
+| Tangent line | `plot(f, type='tangent', x0=1.2)` | [tangent](../docs/images/73_tangent.png) |
+| Interpolation | `plot(x, y, type='spline')` | [interp](../docs/images/74_interpolation.png) |
+| PR curve | `plot(y_true, y_score, type='pr')` | [pr](../docs/images/75_pr_curve.png) |
+| Predicted vs actual | `plot(y_true, y_pred, type='pred_actual')` | [pred](../docs/images/76_pred_actual.png) |
+| Regression panel | `plot(y_true, y_pred, type='regdiag')` | [panel](../docs/images/77_regression_panel.png) |
+| Elbow | `plot(X, type='elbow')` | [elbow](../docs/images/78_elbow.png) |
+| Silhouette | `plot(X, labels, type='silhouette')` | [silhouette](../docs/images/79_silhouette.png) |
+| Scree | `plot(X, type='pca')` | [scree](../docs/images/80_scree.png) |
+| Hypothesis test | `plot(sample, type='ttest', mu=0)` | [ttest](../docs/images/81_hypothesis_test.png) |
+| Lorenz curve | `plot(values, type='gini')` | [lorenz](../docs/images/82_lorenz.png) |
+| Forecast | `plot(history, predicted, type='prediction', lower=lo, upper=hi)` | [forecast](../docs/images/83_forecast.png) |
+| AHP hierarchy | `plot(goal, criteria, alternatives, type='ahp', weights=[...])` | [ahp](../docs/images/84_ahp.png) |
+| 3-D scatter | `plot(x, y, z, type='scatter_3d')` | [scatter3d](../docs/images/85_scatter3d.png) |
+| Palette gallery | `palette_preview()` | [palettes](../docs/images/86_palette_preview.png) |
+| Style gallery | `style_preview()` | [styles](../docs/images/87_style_preview.png) |
+
+---
+
+# Dynamics, time-series & accessibility charts (v4.0)
+
+| Chart | Call | Example image |
+|---|---|---|
+| Bifurcation | `plot(a_range=(2.5, 4.0), type='bifurcation')` | [bifurcation](../docs/images/88_bifurcation.png) |
+| Cobweb | `plot(f, x0=0.3, type='cobweb')` | [cobweb](../docs/images/89_cobweb.png) |
+| Monte-Carlo | `plot(samples, type='montecarlo', true_value=3.5)` | [mc](../docs/images/90_monte_carlo.png) |
+| ACF/PACF | `plot(series, type='acf', nlags=24)` | [acf](../docs/images/91_acf_pacf.png) |
+| Decomposition | `plot(series, period=12, type='decomposition')` | [decomp](../docs/images/92_decomposition.png) |
+| Clustermap | `plot(matrix, type='cluster_heatmap', standardize=True)` | [clustermap](../docs/images/93_clustermap.png) |
+| Correlation network | `plot(data, type='corr_network', threshold=0.3)` | [corrnet](../docs/images/94_corr_network.png) |
+| Polar bars | `plot(theta, r, type='rose', zero_location='N')` | [polarbar](../docs/images/95_polar_bar.png) |
+| Colorblind check | `cvd_preview('nature_qual')` | [cvd](../docs/images/96_cvd_preview.png) |
+
+---
+
+# Evaluation & statistics charts (v5.0)
+
+| Chart | Call | Example image |
+|---|---|---|
+| Fit comparison | `plot(x, y, type='model_comparison')` | [fits](../docs/images/97_fit_comparison.png) |
+| Multi-model ROC | `plot(y_true, scores, type='multi_roc')` | [roc](../docs/images/98_roc_comparison.png) |
+| Calibration | `plot(y_true, y_prob, type='reliability')` | [calibration](../docs/images/99_calibration.png) |
+| Gain / lift | `plot(y_true, y_score, type='lift')` | [gain](../docs/images/100_gain_lift.png) |
+| PCA biplot | `plot(matrix, type='pca_biplot')` | [biplot](../docs/images/101_biplot.png) |
+| KS test | `plot(s1, s2, type='kstest')` | [ks](../docs/images/102_ks_test.png) |
+| Scenario ranges | `plot(labels, low, mid, high, type='scenario')` | [range](../docs/images/103_range_plot.png) |
+| Calendar heatmap | `plot(values, type='calendar', start_date='2025-01-01')` | [calendar](../docs/images/104_calendar.png) |
+| Grouped scatter | `plot(x, y, groups, type='group_scatter')` | [grouped](../docs/images/105_grouped_scatter.png) |
+| Bland-Altman | `plot(m1, m2, type='agreement')` | [ba](../docs/images/106_bland_altman.png) |
+| Decision tree | `tree_plot(X=X, y=y)` | [tree](../docs/images/107_tree_plot.png) |
+
+---
+
+# Structure & diagnostics charts (v6.0)
+
+| Chart | Call | Example image |
+|---|---|---|
+| Joint plot | `plot(x, y, type='jointplot')` | [joint](../docs/images/108_joint_plot.png) |
+| Forest plot | `plot(labels, est, lo, hi, type='forest')` | [forest](../docs/images/109_forest_plot.png) |
+| Strip plot | `plot(groups, type='jitter', overlay_box=True)` | [strip](../docs/images/110_strip_plot.png) |
+| Smooth trend | `plot(x, y, type='lowess')` | [smooth](../docs/images/111_smooth_plot.png) |
+| Density contours | `plot(x, y, type='kde_scatter', fill=True)` | [contour](../docs/images/112_scatter_contour.png) |
+| Diverging bars | `plot(labels, values, type='signed_bar')` | [diverging](../docs/images/113_diverging_bar.png) |
+| Cross-correlation | `plot(s1, s2, type='lead_lag', max_lag=24)` | [ccf](../docs/images/114_cross_correlation.png) |
+| Pareto chart | `plot(labels, counts, type='vital_few')` | [pareto](../docs/images/115_pareto_chart.png) |
+| Ternary diagram | `plot(a, b, c, type='ternary')` | [ternary](../docs/images/116_ternary_plot.png) |
+| KPI rings | `plot(values, type='rings')` | [rings](../docs/images/117_donut_rings.png) |
+
+---
+
+# Comparison & risk charts (v7.0)
+
+| Chart | Call | Example image |
+|---|---|---|
+| Dot plot | `plot(labels, values, type='cleveland')` | [dot](../docs/images/118_dot_plot.png) |
+| Volcano | `plot(fc, p_values, type='volcano')` | [volcano](../docs/images/119_volcano.png) |
+| Confidence ellipses | `plot(x, y, groups=g, type='ellipses')` | [ellipse](../docs/images/120_confidence_ellipse.png) |
+| Stacked histogram | `plot(groups, type='stacked_hist')` | [stacked](../docs/images/121_stacked_hist.png) |
+| Parameter sweep | `plot(f, params, type='sweep')` | [sweep](../docs/images/122_curve_sweep.png) |
+| Phase field | `plot(fx, fy, type='phase_diagram', trajectories=[...])` | [phase](../docs/images/123_phase_field.png) |
+| Split violin | `plot(left, right, type='half_violin')` | [violin](../docs/images/124_split_violin.png) |
+| Risk matrix | `plot(risks, type='riskmap')` | [risk](../docs/images/125_risk_matrix.png) |
+
+---
+
+# Diagnostics & reporting charts (v8.0)
+
+| Chart | Call | Example image |
+|---|---|---|
+| Beeswarm | `plot(groups, type='swarm', overlay_box=True)` | [beeswarm](../docs/images/126_beeswarm.png) |
+| Control chart | `plot(series, type='spc')` | [spc](../docs/images/127_control_chart.png) |
+| Candlestick | `plot(o, h, low, c, type='ohlc')` | [ohlc](../docs/images/128_candlestick.png) |
+| Delta band | `plot(x, a, b, type='delta')` | [delta](../docs/images/129_delta_band.png) |
+
+---
+
+# Flow diagrams (v9.0)
+
+| Chart | Call | Example image |
+|---|---|---|
+| Chord diagram | `plot(matrix, type='chord', labels=[...])` | [chord](../docs/images/130_chord.png) |
+| Correlation + stars | `correlation_matrix(df, show_significance=True, n_obs=150)` | [corr](../docs/images/23_correlation.png) |
+
+---
+
+# Distribution & structure charts (v10.0)
+
+| Chart | Call | Example image |
+|---|---|---|
+| Raincloud | `plot(groups, type='cloud')` | [raincloud](../docs/images/131_raincloud.png) |
+| Circle pack | `plot(values, type='packed_circles')` | [pack](../docs/images/132_circle_pack.png) |
+| Arc diagram | `plot(nodes, edges, type='arcgraph')` | [arc](../docs/images/133_arc_diagram.png) |

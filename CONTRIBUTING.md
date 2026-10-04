@@ -10,7 +10,7 @@ Thanks for considering contributing. Here's how to get started.
 2. Clone it locally
 3. Install dependencies: `pip install -r requirements.txt`
 4. Make your changes
-5. Run tests: `python -m pytest tests/ -v`
+5. Run tests: `python -m pytest tests/ -v` (250+ tests must stay green)
 6. Submit a PR
 
 That's it. No formal process, no approval committee. Just make something good.

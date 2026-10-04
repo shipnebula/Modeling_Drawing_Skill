@@ -172,6 +172,142 @@ def save_figure(
     return filename
 
 
+def export_publication(
+    fig: plt.Figure,
+    filename: str,
+    formats: Sequence[str] = ("png", "pdf"),
+    dpi: int = 300,
+    close: bool = True,
+    transparent_png: bool = False,
+) -> list[str]:
+    """
+    Export one figure to several publication formats at once —
+    PNG for slides, PDF for the paper, SVG for posters — with a
+    consistent base name.
+
+    Parameters
+    ----------
+    fig : Figure
+    filename : str
+        Base path (extension ignored, replaced per format).
+    formats : sequence of str
+        Any of 'png', 'pdf', 'svg', 'eps', 'tif'.
+    close : bool
+        Close the figure after exporting.
+
+    Returns
+    -------
+    list[str]
+        Paths of the written files.
+    """
+    import os
+    base = os.path.splitext(str(filename))[0]
+    written = []
+    for fmt in formats:
+        fmt = fmt.lower().lstrip(".")
+        path = f"{base}.{fmt}"
+        save_figure(
+            fig, path, fmt=fmt, dpi=dpi,
+            transparent=transparent_png and fmt == "png",
+            close=False,
+        )
+        written.append(path)
+        print(f"  Saved: {path}")
+    if close:
+        plt.close(fig)
+    return written
+
+
+# ──────────────────────────────────────────────
+#  MULTI-PAGE  PDF  REPORT
+# ──────────────────────────────────────────────
+
+def pdf_report(
+    figures,
+    filename: str = "report.pdf",
+    titles: Optional[Sequence[str]] = None,
+    title: str | None = None,
+    subtitle: str | None = None,
+    author: str = "",
+    dpi: int = 200,
+    close: bool = True,
+) -> str:
+    """
+    Combine several figures into one multi-page PDF — the one-call
+    appendix builder for competition papers (CUMCM 支撑材料).
+
+    A cover page (title + subtitle + table of contents) is added when
+    ``title`` is given.
+
+    Parameters
+    ----------
+    figures : sequence of Figure (or (Figure, caption) tuples)
+    titles : sequence of str, optional
+        Per-page captions (skipped for tuple items that carry their own).
+    title, subtitle : str, optional
+        Cover-page text.
+    author : str
+        Cover-page author line.
+
+    Returns
+    -------
+    str
+        The written file path.
+    """
+    import os
+    from datetime import datetime
+
+    import matplotlib.pyplot as plt
+    from matplotlib.backends.backend_pdf import PdfPages
+
+    items = []
+    for i, fig in enumerate(figures):
+        if isinstance(fig, tuple):
+            items.append((fig[0], str(fig[1])))
+        elif titles is not None and i < len(titles):
+            items.append((fig, str(titles[i])))
+        else:
+            items.append((fig, ""))
+
+    os.makedirs(os.path.dirname(os.path.abspath(filename)) or ".", exist_ok=True)
+    with PdfPages(filename) as pdf:
+        meta = {"Author": author or "Math Modeling Viz",
+                "Title": title or filename,
+                "CreationDate": datetime.now()}
+        pdf.infodict().update(meta)
+
+        if title:
+            cover, ax = plt.subplots(figsize=(8.27, 11.69))  # A4 portrait
+            ax.axis("off")
+            ax.text(0.5, 0.72, title, ha="center", va="center",
+                    fontsize=24, fontweight="bold", color="#1D3557",
+                    transform=ax.transAxes)
+            if subtitle:
+                ax.text(0.5, 0.64, subtitle, ha="center", va="center",
+                        fontsize=13, color="#555555",
+                        transform=ax.transAxes)
+            if author:
+                ax.text(0.5, 0.18, author, ha="center", va="center",
+                        fontsize=11, color="#888888",
+                        transform=ax.transAxes)
+            ax.text(0.5, 0.12, datetime.now().strftime("%Y-%m-%d"),
+                    ha="center", va="center", fontsize=10, color="#AAAAAA",
+                    transform=ax.transAxes)
+            pdf.savefig(cover, dpi=dpi)
+            plt.close(cover)
+
+        for i, (fig, caption) in enumerate(items, 1):
+            fig.text(0.5, 0.005, f"{i} / {len(items)}   {caption}".strip(),
+                     ha="center", va="bottom", fontsize=8, color="#999999")
+            pdf.savefig(fig, dpi=dpi)
+            fig.texts[-1].remove() if fig.texts else None
+
+    if close:
+        import matplotlib.pyplot as plt
+        for fig, _ in items:
+            plt.close(fig)
+    return filename
+
 # ──────────────────────────────────────────────
 #  NUMBER  FORMATTING
 # ──────────────────────────────────────────────
@@ -600,6 +736,8 @@ __all__ = [
     "setup_figure",
     "figsubplots",
     "save_figure",
+    "export_publication",
+    "pdf_report",
     "format_numbers",
     "axis_config",
     "add_grid",

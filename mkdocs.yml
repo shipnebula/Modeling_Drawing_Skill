@@ -1,0 +1,53 @@
+site_name: Math Modeling Viz
+site_description: Publication-quality charts for mathematical modeling competitions — 145+ chart types, one function call
+site_url: https://shipnebula.github.io/Modeling_Drawing_Skill/
+repo_url: https://github.com/shipnebula/Modeling_Drawing_Skill
+repo_name: Modeling_Drawing_Skill
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      toggle:
+        icon: material/weather-night
+        name: dark mode
+    - scheme: slate
+      primary: indigo
+      toggle:
+        icon: material/weather-sunny
+        name: light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - content.code.copy
+  icon:
+    repo: fontawesome/brands/github
+
+nav:
+  - Home: index.md
+  - Gallery: gallery.md
+  - Usage:
+      - Usage guide: usage-guide.md
+      - Chart catalog: chart-catalog.md
+      - API reference: api-reference.md
+  - Strategy:
+      - Competition strategy: competition-strategy.md
+      - Color palettes: color-palettes.md
+      - Typography: typography-guide.md
+  - Project:
+      - Changelog: changelog.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.tabbed
+  - tables
+  - toc:
+      permalink: true
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/shipnebula/Modeling_Drawing_Skill

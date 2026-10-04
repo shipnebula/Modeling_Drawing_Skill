@@ -27,9 +27,9 @@ def generate_sample_data():
     """Generate sample data for a typical modeling competition."""
     # Time series data (2015-2024)
     years = list(range(2015, 2025))
-    gdp = [100 + i * 8 + np.random.randn(10) * 2 for i in range(10)]
-    population = [50 + i * 2 + np.random.randn(10) * 0.5 for i in range(10)]
-    urbanization = [45 + i * 2.5 + np.random.randn(10) * 0.8 for i in range(10)]
+    gdp = 100 + np.arange(10) * 8 + np.random.randn(10) * 2
+    population = 50 + np.arange(10) * 2 + np.random.randn(10) * 0.5
+    urbanization = 45 + np.arange(10) * 2.5 + np.random.randn(10) * 0.8
 
     # Feature data for correlation analysis
     features = np.random.randn(200, 6)

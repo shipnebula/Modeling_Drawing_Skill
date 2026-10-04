@@ -1,0 +1,576 @@
+Metadata-Version: 2.4
+Name: math-modeling-viz
+Version: 10.0.0
+Summary: Nature-level publication quality plots for mathematical modeling competitions (CUMCM/MCM/ICM) — 155+ chart types, one function call
+Author: Math Modeling Viz Contributors
+License: MIT
+Project-URL: Homepage, https://github.com/shipnebula/Modeling_Drawing_Skill
+Project-URL: Repository, https://github.com/shipnebula/Modeling_Drawing_Skill
+Project-URL: Issues, https://github.com/shipnebula/Modeling_Drawing_Skill/issues
+Project-URL: Changelog, https://github.com/shipnebula/Modeling_Drawing_Skill/blob/main/CHANGELOG.md
+Keywords: mathematical-modeling,visualization,plotting,cumcm,mcm,icm,publication-quality,data-science,competition,matplotlib,charts,scientific-visualization
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Science/Research
+Classifier: Intended Audience :: Education
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Topic :: Scientific/Engineering :: Visualization
+Classifier: Topic :: Scientific/Engineering :: Mathematics
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: matplotlib>=3.7.0
+Requires-Dist: numpy>=1.24.0
+Requires-Dist: pandas>=2.0.0
+Requires-Dist: scipy>=1.10.0
+Provides-Extra: extra
+Requires-Dist: seaborn>=0.12.0; extra == "extra"
+Requires-Dist: networkx>=3.0; extra == "extra"
+Requires-Dist: scikit-learn>=1.3; extra == "extra"
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0; extra == "dev"
+Requires-Dist: black; extra == "dev"
+Requires-Dist: ruff; extra == "dev"
+Dynamic: license-file
+
+# 📊 Math Modeling Viz
+
+**Publication-quality charts for mathematical modeling papers — one import, one function call, done.**
+
+[![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![CI](https://github.com/shipnebula/Modeling_Drawing_Skill/actions/workflows/ci.yml/badge.svg)](../../actions/workflows/ci.yml)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+
+[English](#-features) | [中文文档](#-中文说明)
+
+---
+
+Math Modeling Viz turns the chart-making part of **CUMCM / MCM-ICM / academic papers** into a one-liner. Instead of fighting matplotlib for an afternoon, you describe the data and get a Nature-style figure with correct fonts, spines, grid, palette, and export settings.
+
+```python
+from plot import plot
+
+fig = plot([120, 180, 150], labels=['2022', '2023', '2024'], title='Revenue')
+fig.savefig('revenue.pdf')   # vector PDF, ready for submission
+```
+
+<p align="center">
+  <img src="docs/images/banner.png" width="860" alt="Math Modeling Viz gallery banner">
+</p>
+
+## ✨ Features
+
+- **🎯 155+ chart types** — from bar/line/pie to 3-D surfaces, vector fields, phase fields with integrated orbits, parameter sweeps, bifurcation diagrams, Monte-Carlo convergence, correlograms, ternary diagrams, chord diagrams, forest plots, volcano plots, risk matrices, beeswarms, rainclouds, circle packing, SPC control charts, and calculus visuals.
+- **🤖 Smart auto-detection** — pass a list, dict, NumPy array, or DataFrame and `plot()` picks a sensible chart type; fuzzy type hints (`'barr'` → *"did you mean 'bar'?"*) catch typos.
+- **🎨 30+ curated palettes** — colorblind-safe (Paul Tol, Okabe-Ito), Nature/Science-inspired, sequential, diverging, dark-mode. Picked by analysts, not by `plt.cm.viridis` roulette.
+- **🖌 7 style presets** — `nature`, `publication`, `economist`, `minimal`, `dark`, `poster`, `dark_poster`. One call, consistent typography.
+- **🀄 CJK support** — Chinese/Japanese/Korean labels render correctly on Windows, macOS, and Linux out of the box (fonts auto-detected and applied at import).
+- **🧩 Multi-panel figures** — `panel_figure()` composes grids of charts with automatic **(a), (b), (c)** labels in Nature style.
+- **⚡ Fast** — min/max decimation keeps 200k-point line charts snappy; vectorized colormaps; cached styling; headless-safe backend detection for servers and CI.
+- **⌨️ CLI included** — `mmv plot data.csv -t bar -o out.pdf` renders charts straight from the terminal.
+- **🎬 GIF export** — `save_gif(figures, 'demo.gif')` animates convergence and parameter sweeps with zero extra dependencies.
+- **♿ Colorblind tooling** — `cvd_preview()` renders your palette under protanopia / deuteranopia / tritanopia simulations; `colorblind_safe()` quantifies it.
+- **🎨 `style()` context manager** — temporarily switch looks (`with style("dark"):`) with automatic restore; `export_publication()` writes PNG+PDF+SVG in one call.
+- **⏱ Instant CLI previews** — `mmv preview radar` renders a demo of any chart type in one command.
+- **📐 Declarative rendering** — `render_spec()` / `mmv spec recipe.json` drive every chart from a JSON recipe — ideal for LLM pipelines and config-driven reports.
+- **🎨 Theme presets** — `apply_theme('colorblind')` bundles style + palette + accessibility in one call (11 themes).
+- **🩺 `mmv doctor`** — one-command environment health check (deps, versions, CJK fonts, chart registry).
+- **📑 One-call appendix PDF** — `pdf_report([figs], 'appendix.pdf', title=...)` builds a multi-page, cover-titled submission document (CUMCM 支撑材料).
+- **⚙️ Project-local defaults** — drop a `.mmvrc.json` next to your script (`{"theme": "colorblind", "dpi": 200}`) and every figure follows it — zero code.
+- **🎞 `make_gif()`** — animate any figure sequence from one frame function; the README banner is generated this way.
+- **🌐 Browsable gallery + docs site** — `docs/gallery.html` regenerates alongside the images; an MkDocs Material site (`mkdocs serve`) publishes the full documentation.
+- **⚙️ Workflow CLI** — `mmv init` writes a starter recipe; `mmv batch specs/` renders a whole directory of JSON recipes in one command.
+- **🔤 LaTeX toggle** — `with use_latex():` renders titles and labels with real LaTeX (mathtext fallback built in).
+- **📊 Model comparison suite** — `fit_comparison` (linear/poly/power/exp ranked by R²), `roc_comparison` (multi-model overlay), calibration & gain/lift charts, Bland–Altman agreement.
+- **🧮 Calculus & statistics visuals** — definite integrals, Riemann sums, tangent lines, hypothesis-test rejection regions, Lorenz/Gini curves, and time-series forecast bands.
+- **📦 Zero config** — every figure returns a plain `matplotlib.figure.Figure`, so anything matplotlib can do still works.
+
+## 🚀 Quick start
+
+```bash
+pip install -r requirements.txt
+```
+
+> Requires Python 3.9+, matplotlib ≥ 3.7, numpy ≥ 1.24, pandas ≥ 2.0, scipy ≥ 1.10.
+> Optional: seaborn, networkx, scikit-learn unlock a few advanced charts.
+
+### The universal `plot()` function
+
+```python
+from plot import plot
+
+# 1. Bar chart (auto-detected)
+plot([10, 20, 30], labels=['A', 'B', 'C'], title='Results')
+
+# 2. Multi-line convergence plot
+plot({'GA': [0.6, 0.8, 0.9], 'SA': [0.62, 0.84, 0.95]}, x=range(3), title='Convergence')
+
+# 3. Scatter with fit and confidence band
+plot(x, y, type='scatter', show_fit=True)
+
+# 4. Sensitivity analysis (tornado)
+plot(parameters=['Price', 'Demand', 'Cost'], low_values=[...], high_values=[...],
+     type='sensitivity', title='Sensitivity')
+
+# 5. Correlation heatmap straight from a DataFrame
+plot(df, type='correlation')
+
+# 6. Nature-style multi-panel figure with (a)(b)(c) labels
+from plot import panel_figure
+panel_figure([
+    {'type': 'bar',  'data': [4, 7, 5],  'labels': ['A', 'B', 'C'], 'title': 'Accuracy'},
+    {'type': 'line', 'data': {'M1': [1, 2, 3]}, 'x': [1, 2, 3], 'title': 'Loss'},
+    {'type': 'hist', 'data': residuals, 'title': 'Residuals'},
+    {'type': 'radar', 'data': ['Speed', 'Cost', 'Robustness'],
+     'args': [[[4, 3, 5]]], 'names': ['Model'], 'title': 'Profile'},
+], ncols=2, suptitle='Figure 1: Overall results')
+```
+
+### Batch generation with `FigureFactory`
+
+```python
+from plot import FigureFactory
+
+f = FigureFactory(style='publication', title_prefix='Figure ', output_format='pdf')
+f.bar([10, 20, 30], labels=['A', 'B', 'C'], title='Sales')
+f.line({'Trend': [1, 2, 3, 4]}, x=[1, 2, 3, 4], title='Growth')
+f.sensitivity(params, low, high, title='Sensitivity')
+f.save_all('output/')          # → output/figure_01.pdf, figure_02.pdf, ...
+```
+
+### Command line
+
+```bash
+mmv plot data.csv --type bar --title "Results" -o output.pdf
+mmv types                  # list all chart types
+mmv palettes               # palette gallery with color swatches
+mmv detect data.csv        # what would auto-detection pick?
+mmv spec recipe.json       # render a figure from a JSON recipe
+```
+
+## 🖼 Gallery
+
+Every image below is produced by [examples/gallery.py](examples/gallery.py) — run it to regenerate all of them with one command.
+
+### Basic charts
+
+| Bar | Grouped | Stacked | Line |
+|:---:|:---:|:---:|:---:|
+| ![](docs/images/01_bar.png) | ![](docs/images/02_grouped_bar.png) | ![](docs/images/03_stacked_bar.png) | ![](docs/images/04_line.png) |
+| **Area** | **Scatter + fit** | **Pie** | **Donut** |
+| ![](docs/images/05_area.png) | ![](docs/images/06_scatter.png) | ![](docs/images/07_pie.png) | ![](docs/images/08_donut.png) |
+| **Histogram** | **Box** | **Violin** | **Step** |
+| ![](docs/images/09_histogram.png) | ![](docs/images/10_box.png) | ![](docs/images/11_violin.png) | ![](docs/images/12_step.png) |
+
+### Model analysis
+
+| Fit curve | Residuals | Confusion matrix | ROC |
+|:---:|:---:|:---:|:---:|
+| ![](docs/images/13_fit_curve.png) | ![](docs/images/14_residual.png) | ![](docs/images/15_confusion.png) | ![](docs/images/16_roc.png) |
+| **Learning curve** | **Sensitivity** | **Pareto front** | **Validation** |
+| ![](docs/images/17_learning_curve.png) | ![](docs/images/18_sensitivity.png) | ![](docs/images/19_pareto.png) | ![](docs/images/20_validation.png) |
+| **Feature importance** | **Clustering** | **Correlation** | |
+| ![](docs/images/21_feature_importance.png) | ![](docs/images/22_clustering.png) | ![](docs/images/23_correlation.png) | |
+
+### Advanced & infographic
+
+| Network | Sankey | Radar | Waterfall |
+|:---:|:---:|:---:|:---:|
+| ![](docs/images/24_network.png) | ![](docs/images/25_sankey.png) | ![](docs/images/26_radar.png) | ![](docs/images/27_waterfall.png) |
+| **Dumbbell** | **Slope** | **Timeline** | **Parallel coords** |
+| ![](docs/images/28_dumbbell.png) | ![](docs/images/29_slope.png) | ![](docs/images/30_timeline.png) | ![](docs/images/31_parallel.png) |
+| **Gantt** | **Treemap** | **Dashboard** | **KPI card** |
+| ![](docs/images/32_gantt.png) | ![](docs/images/33_treemap.png) | ![](docs/images/34_dashboard.png) | ![](docs/images/35_kpi.png) |
+| **Bullet** | **Sparkline** | **Gauge** | **Process flow** |
+| ![](docs/images/36_bullet.png) | ![](docs/images/37_sparkline.png) | ![](docs/images/38_gauge.png) | ![](docs/images/39_flow.png) |
+| **Mind map** | **vs Target** | | |
+| ![](docs/images/40_mindmap.png) | ![](docs/images/41_compare.png) | | |
+
+### Scientific computing *(new in v2.0)*
+
+
+| 3-D Surface | Contours | Vector field | Phase portrait |
+|:---:|:---:|:---:|:---:|
+| ![](docs/images/42_surface3d.png) | ![](docs/images/43_contour.png) | ![](docs/images/44_vector_field.png) | ![](docs/images/45_phase_portrait.png) |
+| **Twin axis** | **Confidence band** | **Heatmap** | **Optimizer trace** |
+| ![](docs/images/46_twin_axis.png) | ![](docs/images/47_errorband.png) | ![](docs/images/48_heatmap.png) | ![](docs/images/49_optimization_trace.png) |
+| **Polar / wind rose** | **Log-log scaling** | | |
+| ![](docs/images/50_polar.png) | ![](docs/images/51_loglog.png) | | |
+
+### Statistics *(new in v2.0)*
+
+| Q-Q plot | ECDF | Ridgeline | Hexbin |
+|:---:|:---:|:---:|:---:|
+| ![](docs/images/52_qq.png) | ![](docs/images/53_ecdf.png) | ![](docs/images/54_ridgeline.png) | ![](docs/images/55_hexbin.png) |
+| **Stem** | **Error bars** | **Bubble** | **Bump** |
+| ![](docs/images/56_stem.png) | ![](docs/images/57_errorbar.png) | ![](docs/images/58_bubble.png) | ![](docs/images/59_bump.png) |
+| **Stream graph** | **Funnel** | **Waffle** | **Pyramid** |
+| ![](docs/images/60_streamgraph.png) | ![](docs/images/61_funnel.png) | ![](docs/images/62_waffle.png) | ![](docs/images/63_pyramid.png) |
+| **Sunburst** | **Icicle** | **Mosaic** | **Dendrogram** |
+| ![](docs/images/64_sunburst.png) | ![](docs/images/65_icicle.png) | ![](docs/images/66_mosaic.png) | ![](docs/images/67_dendrogram.png) |
+| **Distribution panel** | **Scatter matrix** | **Multi-panel** | |
+| ![](docs/images/68_distribution_panel.png) | ![](docs/images/69_scatter_matrix.png) | ![](docs/images/70_panel_figure.png) | |
+
+### Distribution deep-dive *(new in v10.0)*
+
+| Raincloud | Circle pack | Arc diagram | Config file |
+|:---:|:---:|:---:|:---:|
+| ![](docs/images/131_raincloud.png) | ![](docs/images/132_circle_pack.png) | ![](docs/images/133_arc_diagram.png) | ![](docs/images/70_panel_figure.png) |
+| violin + box + points | part-to-whole bubbles | sequence hand-offs | `.mmvrc.json` |
+
+### Flows & platform *(new in v9.0)*
+
+| Chord diagram | Significance stars | mmv init | mmv batch |
+|:---:|:---:|:---:|:---:|
+| ![](docs/images/130_chord.png) | ![](docs/images/23_correlation.png) | ![](docs/images/70_panel_figure.png) | ![](docs/images/34_dashboard.png) |
+| Flow matrices | Correlation + p-values | Starter recipe | Batch rendering |
+
+### Diagnostics & reporting *(new in v8.0)*
+
+| Beeswarm | SPC control chart | OHLC candles | Delta band |
+|:---:|:---:|:---:|:---:|
+| ![](docs/images/126_beeswarm.png) | ![](docs/images/127_control_chart.png) | ![](docs/images/128_candlestick.png) | ![](docs/images/129_delta_band.png) |
+
+### Comparison & risk *(new in v7.0)*
+
+| Dot plot | Volcano | Confidence ellipses | Stacked hist |
+|:---:|:---:|:---:|:---:|
+| ![](docs/images/118_dot_plot.png) | ![](docs/images/119_volcano.png) | ![](docs/images/120_confidence_ellipse.png) | ![](docs/images/121_stacked_hist.png) |
+| **Parameter sweep** | **Phase field** | **Split violin** | **Risk matrix** |
+| ![](docs/images/122_curve_sweep.png) | ![](docs/images/123_phase_field.png) | ![](docs/images/124_split_violin.png) | ![](docs/images/125_risk_matrix.png) |
+
+### Structure & statistics *(new in v6.0)*
+
+| Joint plot | Forest plot | Strip + box | LOESS smooth |
+|:---:|:---:|:---:|:---:|
+| ![](docs/images/108_joint_plot.png) | ![](docs/images/109_forest_plot.png) | ![](docs/images/110_strip_plot.png) | ![](docs/images/111_smooth_plot.png) |
+| **Density contours** | **Diverging bars** | **Lead-lag CCF** | **Pareto chart** |
+| ![](docs/images/112_scatter_contour.png) | ![](docs/images/113_diverging_bar.png) | ![](docs/images/114_cross_correlation.png) | ![](docs/images/115_pareto_chart.png) |
+| **Ternary diagram** | **KPI rings** | | |
+| ![](docs/images/116_ternary_plot.png) | ![](docs/images/117_donut_rings.png) | | |
+
+### Model comparison & statistics *(new in v5.0)*
+
+| Fit comparison | Multi-model ROC | Calibration | Gain / lift |
+|:---:|:---:|:---:|:---:|
+| ![](docs/images/97_fit_comparison.png) | ![](docs/images/98_roc_comparison.png) | ![](docs/images/99_calibration.png) | ![](docs/images/100_gain_lift.png) |
+| **PCA biplot** | **KS test** | **Scenario ranges** | **Calendar heatmap** |
+| ![](docs/images/101_biplot.png) | ![](docs/images/102_ks_test.png) | ![](docs/images/103_range_plot.png) | ![](docs/images/104_calendar.png) |
+| **Grouped scatter** | **Bland–Altman** | **Decision tree** | |
+| ![](docs/images/105_grouped_scatter.png) | ![](docs/images/106_bland_altman.png) | ![](docs/images/107_tree_plot.png) | |
+
+### Dynamics, time-series & accessibility *(new in v4.0)*
+
+| Bifurcation | Cobweb | Monte-Carlo | ACF/PACF |
+|:---:|:---:|:---:|:---:|
+| ![](docs/images/88_bifurcation.png) | ![](docs/images/89_cobweb.png) | ![](docs/images/90_monte_carlo.png) | ![](docs/images/91_acf_pacf.png) |
+| **Decomposition** | **Clustermap** | **Correlation network** | **Polar bars** |
+| ![](docs/images/92_decomposition.png) | ![](docs/images/93_clustermap.png) | ![](docs/images/94_corr_network.png) | ![](docs/images/95_polar_bar.png) |
+| **Colorblind check** | | | |
+| ![](docs/images/96_cvd_preview.png) | | | |
+
+### Calculus, ML evaluation & diagrams *(new in v3.0)*
+
+| Definite integral | Riemann sum | Tangent line | Interpolation |
+|:---:|:---:|:---:|:---:|
+| ![](docs/images/71_auc.png) | ![](docs/images/72_riemann.png) | ![](docs/images/73_tangent.png) | ![](docs/images/74_interpolation.png) |
+| **PR curve** | **Predicted vs actual** | **Regression diagnostics** | **Elbow / silhouette** |
+| ![](docs/images/75_pr_curve.png) | ![](docs/images/76_pred_actual.png) | ![](docs/images/77_regression_panel.png) | ![](docs/images/78_elbow.png) |
+| **Silhouette profile** | **PCA scree** | **Hypothesis test** | **Lorenz / Gini** |
+| ![](docs/images/79_silhouette.png) | ![](docs/images/80_scree.png) | ![](docs/images/81_hypothesis_test.png) | ![](docs/images/82_lorenz.png) |
+| **Forecast band** | **AHP hierarchy** | **3-D scatter** | **Style preview** |
+| ![](docs/images/83_forecast.png) | ![](docs/images/84_ahp.png) | ![](docs/images/85_scatter3d.png) | ![](docs/images/87_style_preview.png) |
+
+## 🗼 Chart finder
+
+| You want to show… | Use |
+|---|---|
+| Trend over time | `plot({'A': [...]}, x=..., type='line')` or `errorband` |
+| Comparison across categories | `type='bar'` / `'grouped'` / `'compare'` |
+| Part-to-whole | `type='pie'` / `'donut'` / `'treemap'` / `'sunburst'` / `'waffle'` |
+| Distribution of one variable | `type='hist'` / `'box'` / `'violin'` / `'ridgeline'` / `'distpanel'` |
+| Relationship between two variables | `type='scatter'` / `'bubble'` / `'hexbin'` / `'pairs'` |
+| Correlation of many variables | `plot(df, type='correlation')` / `heatmap` |
+| Model quality | `type='confusion'` / `'roc'` / `'residual'` / `'validation'` / `'learning'` |
+| Sensitivity / importance | `type='sensitivity'` / `'importance'` |
+| Optimization | `type='surface'` / `'contour'` / `'pareto'` / `'trace'` |
+| ODEs & dynamics | `type='vector'` / `'phase'` |
+| Flows & processes | `type='sankey'` / `'flow'` / `'funnel'` / `'gantt'` |
+| Rankings over time | `type='bump'` / `'slope'` |
+| Hierarchy | `type='sunburst'` / `'icicle'` / `'treemap'` / `'dendrogram'` |
+| Paper summary figure | `panel_figure([...])` / `type='dashboard'` / `'radar'` |
+| Prediction & forecast | `type='forecast'` (history + band) / `'pred_actual'` |
+| Model selection (clustering / PCA) | `type='elbow'` / `'silhouette'` / `'scree'` |
+| Calculus teaching figures | `type='integral'` / `'riemann'` / `'tangent'` / `'spline'` |
+| Hypothesis testing | `type='ttest'` with shaded rejection region |
+| Inequality / concentration | `type='gini'` (Lorenz curve) |
+| Evaluation-model papers (AHP/TOPSIS) | `type='ahp'` 层次结构图 |
+| Chaos & iterative maps | `type='bifurcation'` / `'cobweb'` |
+| Simulation chapters | `type='montecarlo'` (running mean + CI) |
+| Time-series diagnostics | `type='acf'` / `'decomposition'` |
+| Correlation structure | `type='corr_network'` / `clustermap` |
+| Accessibility check | `cvd_preview()` + `colorblind_safe()` |
+| Which fit model is best | `type='model_comparison'` (R²-ranked) |
+| Compare classifier models | `type='multi_roc'` / `'lift'` / calibration |
+| Scenario best/base/worst | `type='scenario'` (range plot) |
+| Daily data over a year | `type='calendar'` |
+| Variable loadings | `type='pca_biplot'` |
+| Two-sample distribution shift | `type='kstest'` (D-stat marked) |
+| Config/LLM-driven figures | `render_spec({...})` / `mmv spec recipe.json` |
+| Effect sizes with CI | `type='forest'` (meta-analysis style) |
+| Which factors matter most | `type='vital_few'` (Pareto chart) |
+| Does A lead or lag B | `type='lead_lag'` (cross-correlation) |
+| Three-component mixtures | `type='ternary'` |
+| Scatter + marginal spread | `type='jointplot'` |
+| Robust trend in noise | `type='lowess'` / `'savgol'` |
+| One-click look & palette | `apply_theme('colorblind')` |
+| Rank candidates visually | `type='cleveland'` (dot plot) |
+| Fold-change vs significance | `type='volcano'` |
+| Cluster spread & separation | `type='ellipses'` (1σ/2σ) |
+| Solution vs a parameter | `type='sweep'` (colored curve family) |
+| ODE flow + integrated orbits | `type='phase_diagram'` |
+| Control vs treatment per category | `type='half_violin'` |
+| Probability × impact map | `type='riskmap'` |
+| Environment diagnostics | `mmv doctor` |
+| Every observation, zero overlap | `type='beeswarm'` (box overlay optional) |
+| Process stability / SPC | `type='spc'` (CL/UCL/LCL + violations) |
+| OHLC price/envelope data | `type='ohlc'` |
+| Policy vs baseline delta | `type='difference_band'` (max gap marked) |
+| Multi-page appendix PDF | `pdf_report(figs, 'appendix.pdf', title=...)` |
+| Flow / migration matrix | `type='chord'` |
+| Correlations with p-values | `correlation_matrix(df, show_significance=True, n_obs=...)` |
+| Start a report project | `mmv init` |
+| Render many JSON specs | `mmv batch specs/ -o output/` |
+| The best distribution plot | `type='cloud'` (raincloud) |
+| Part-to-whole bubbles | `type='packed_circles'` |
+| Sequence hand-offs | `type='arcgraph'` |
+| Project-wide look defaults | `.mmvrc.json` (auto-loaded) |
+
+## 🏆 Competition paper guide (CUMCM / MCM-ICM)
+
+| Section | Figures | Chart types |
+|---|---|---|
+| 摘要 / Summary sheet | 1–2 | `dashboard`, `radar` |
+| 问题重述 / Problem restatement | 1 | `mind`, `flow` |
+| 模型建立 / Model formulation | 2–3 | `network`, `flow`, `surface`, `contour` |
+| 模型求解 / Solving | 2–3 | `line`, `learning`, `trace`, `phase` |
+| 结果分析 / Results | 4–6 | `bar`, `grouped`, `correlation`, `scatter`, `distpanel` |
+| 灵敏度分析 / Sensitivity | 1–2 | `sensitivity`, `importance` |
+| 模型检验 / Validation | 1–2 | `residual`, `confusion`, `errorband` |
+| 结论 / Conclusion | 1 | `radar`, `dashboard`, `panel` |
+
+**Style picks** — CUMCM: `apply_style('nature')`; MCM/ICM: `apply_style('publication')`; posters: `'poster'`; slides in a dark room: `'dark'`.
+**Palette picks** — papers: `nature_qual` (default) or `tol_8` (colorblind-safe); dark mode: `palette='dark_mode', style='dark'`.
+
+## 🎨 Styles & palettes
+
+```python
+from plot import apply_style, get_palette, auto_colors, list_styles
+
+apply_style('economist')                       # global preset
+colors = auto_colors(5, 'viridis')             # 5 sequential colors
+pal    = get_palette('nature_qual')            # full qualitative palette
+```
+
+Browse everything from the terminal:
+
+```bash
+mmv styles      # 7 style presets
+mmv palettes    # 30+ palettes with ANSI color swatches
+```
+
+## ⚡ Performance
+
+- **Large line data**: above 20 000 points per series, min/max decimation preserves peaks while drawing ~10× faster — visually identical output.
+- **Vectorized colormaps**: palette interpolation is numpy-based (was a Python loop).
+- **Style caching**: repeated `apply_style('nature')` calls are no-ops.
+- **Headless-safe**: servers/CI without a display automatically fall back to the Agg backend instead of crashing in Tk/Qt.
+
+## 📚 Documentation
+
+- [API reference](docs/api-reference.md) — every function signature
+- [Usage guide](docs/usage-guide.md) — common patterns
+- [Chart catalog](references/chart-catalog.md) — every chart with examples
+- [Color palettes](references/color-palettes.md) — palette selection guide
+- [Competition strategy](references/competition-strategy.md) — CUMCM/MCM figure plans
+- [Typography guide](references/typography-guide.md) — fonts and formatting
+
+## ❓ FAQ
+
+<details>
+<summary><b>Chinese characters show as boxes (□□□)</b></summary>
+
+Nothing — on Windows/macOS CJK fonts are pre-installed and auto-detected. On Linux: `sudo apt install fonts-noto-cjk`. The library scans for installed CJK fonts (SimHei, Microsoft YaHei, PingFang, Noto Sans CJK…) at import and applies them automatically.
+</details>
+
+<details>
+<summary><b>How do I save a vector PDF for submission?</b></summary>
+
+```python
+fig = plot(..., )
+fig.savefig('figure.pdf')          # or .svg / .eps
+```
+PDF/SVG are vector formats and scale to any size without pixelation.
+</details>
+
+<details>
+<summary><b>My chart type name is "unknown"</b></summary>
+
+Typos return close-match suggestions: `plot(..., type='barr')` → *Unknown chart type 'barr'. Did you mean: 'bar', 'barh', 'bullet'?* Run `mmv types` or `list_chart_types()` for the full list (190+ aliases).
+</details>
+
+<details>
+<summary><b>Can I tweak the figure after plot() returns it?</b></summary>
+
+Yes — it's a normal matplotlib Figure. `ax = fig.axes[0]`, then use any matplotlib API.
+</details>
+
+<details>
+<summary><b>Does it work in Jupyter?</b></summary>
+
+Yes. `%matplotlib inline` is all you need; figures render as cell output.
+</details>
+
+## 🤝 Contributing
+
+Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md). Good first issues: new palettes, new chart types (follow [sciences.py](scripts/plot/sciences.py) as a template), docs translations.
+
+```bash
+git clone https://github.com/shipnebula/Modeling_Drawing_Skill.git
+cd Modeling_Drawing_Skill
+pip install -r requirements.txt -r <(echo pytest)
+python -m pytest tests/            # 457 tests, all green before you start
+python examples/gallery.py         # regenerate gallery images
+```
+
+## 📄 License
+
+[MIT](LICENSE) — free for academic and commercial use.
+
+## 🙏 Acknowledgements
+
+Palette inspiration: [Paul Tol's colour schemes](https://personal.sron.nl/~pault/), [Nature journal figures](https://www.nature.com/), [The Economist Graphic Detail](https://www.economist.com/graphic-detail).
+
+---
+
+## 🇨🇳 中文说明
+
+**数学建模竞赛论文级图表库** —— 一次导入、一次调用，直接产出符合 CUMCM（国赛）/ MCM-ICM（美赛）评审审美的图。
+
+```python
+from plot import plot
+
+# 灵敏度分析（龙卷风图）：建模论文必备
+plot(
+    parameters=['价格', '需求量', '成本'],
+    low_values=[0.86, 0.90, 0.93],
+    high_values=[0.97, 0.95, 0.94],
+    type='sensitivity',
+    title='灵敏度分析',
+)
+
+# 中文标签开箱即用（自动匹配中文字体）
+plot([120, 180, 150], labels=['2023', '2024', '2025'], title='年度营收')
+fig.savefig('营收.pdf')   # 矢量图，评审放大不糊
+```
+
+### 为什么选它？
+
+| | 手写 matplotlib | Math Modeling Viz |
+|---|---|---|
+| 一张图的代码量 | 20–50 行 | **1–5 行** |
+| 中文字体 | 手动配置 rcParams | **自动检测** |
+| 配色 | 靠感觉 | **30+ 专业色板** |
+| 论文排版细节 | 逐个调 spine/grid/dpi | **7 种预设一键套用** |
+| 批量出图 | 复制粘贴 | **FigureFactory 链式生成** |
+
+### v10.0 新增
+
+- **3 种新图表（总计 155+）**：雨云图（半小提琴+箱线+原始点——信息密度最高的分布图）、圆填充图（面积∝数值的气泡打包）、弧线图（序列关系/流程交接）
+- **项目级默认配置**：`.mmvrc.json` 放在脚本旁自动加载（主题/色板/dpi/figsize），零代码全局换装
+- **GitHub Pages 文档发布**：`docs.yml` 工作流自动构建 MkDocs 站点并部署
+
+### v9.0 新增
+
+- **弦图**（chord diagram）：流矩阵的经典可视化——节点弧长按总流量分配、缎带连接每对流，最后一个标志性缺口图表补齐
+- **相关性显著性星号**：`correlation_matrix(..., show_significance=True)` 为每格附加 \*/\*\*/\*\*\*（t 近似，需 n_obs）
+- **工作流命令**：`mmv init` 生成 starter recipe.json；`mmv batch specs/` 批量渲染整个目录
+- **MkDocs Material 文档站**：`mkdocs serve` 本地浏览全部文档 + 图库；贡献者图表模板 `docs/chart-template.py`
+
+### v8.0 新增
+
+- **4 种新图表（总计 145+）**：蜂群图（零重叠+箱线叠加）、SPC 控制图（CL/UCL/LCL+失控点标记）、K 线图（OHLC）、差值带图（两情景对比+最大差值标注）
+- **`pdf_report()`**：多张图一键合成带封面和页码的多页 PDF——CUMCM 支撑材料附录神器
+- **`make_gif()`**：从帧函数一行生成动画 GIF；README 横幅动画就是用它做的
+- **scatter_matrix 分组增强**：按组分色着色 + 对角线分组分布
+
+### v7.0 新增
+
+- **8 种新图表（总计 140+）**：Cleveland 点图、火山图（折叠变化+显著性）、置信椭圆（1σ/2σ 分组）、堆叠/叠加/阶梯直方图、参数扫描曲线族（色带映射）、**相场图**（流场+积分轨道+不动点——ODE 分析的终极图）、对半小提琴、风险矩阵（概率×影响）
+- **FigureFactory 上下文管理器**：`with FigureFactory(auto_save_dir='out') as f:` 退出自动保存
+- **`mmv doctor`**：环境体检（依赖/版本/CJK 字体/图表注册表）
+- **基准扩充**：23 类图表纳入回归监测
+
+### v6.0 新增
+
+- **10 种新图表（总计 130+）**：联合分布图（散点+边缘分布）、森林图（效应量+置信区间）、抖动条带图（可叠加箱线）、LOESS/Savitzky-Golay 平滑趋势、散点+核密度等高线、正负分色条形图、帕累托图（累计百分比+80%线）、互相关图（超前滞后分析）、三元相图、KPI 同心进度环
+- **主题预设**：`apply_theme()` 一键应用风格+色板组合（11 个预设，含色盲友好与暗色主题）
+- **可浏览图库**：`docs/gallery.html` 随图库自动重新生成
+- **PyPI 发布工作流**：`.github/workflows/publish.yml`（tag 发布自动构建上传）
+- **代码卫生**：pyflakes 清理 100+ 处冗余导入，修复 `network_graph` 边标签未定义名 bug
+
+### v5.0 新增
+
+- **11 种新图表（总计 115+）**：多模型拟合对比（线性/多项式/幂/指数自动按 R² 排名并标注公式）、多模型 ROC 叠加、校准曲线、累积增益/提升图、PCA 双标图、KS 检验可视化（D 统计量标注）、情景区间图（best/base/worst）、日历热图、分组回归散点、Bland-Altman 一致性、决策树图
+- **声明式渲染**：`render_spec()` 字典配方 / `mmv spec recipe.json` 一键出图——LLM 管线和配置化报告的理想入口
+- **LaTeX 支持**：`with use_latex():` 上下文（无 LaTeX 环境时自动回退 mathtext）
+- **修复**：`plot(save_path=...)` 现在保存后返回的 Figure 仍保持打开、可继续编辑
+- **基准**：`python examples/benchmark.py` 输出 18 类代表性图表的渲染耗时表
+
+### v4.0 新增
+
+- **10 种新图表（总计 100+）**：分岔图（混沌/倍周期）、蛛网图、蒙特卡洛收敛图（均值+置信带）、ACF/PACF 相关图（纯 numpy 实现，无 statsmodels）、季节分解四面板、聚类热图（含树状图）、相关性网络图（力导向布局）、极坐标条形图（风玫瑰柱）、色盲模拟预览
+- **色盲工具**：`cvd_preview()` 一图对比三种色觉缺陷下的色板、`colorblind_safe()` 量化检查
+- **API 升级**：`style()` 上下文管理器（自动恢复原风格）、`export_publication()` 一次导出 PNG+PDF+SVG
+- **性能**：PEP 562 惰性加载——`import plot` 从 1.25s 降到 **0.4s**（3 倍提速）
+- **CLI**：`mmv preview <类型>` 一键渲染任意图表的示例
+
+### v3.0 新增
+
+- **18 种新图表（总计 85+）**：定积分面积、黎曼和、切线与导数、插值方法对比、3D 散点、PR 曲线、预测值 vs 实际值、R 风格回归诊断四面板、K 均值肘部法则（自动标注最佳 k）、轮廓图、PCA 碎石图、假设检验拒绝域、洛伦兹曲线与基尼系数、时间序列预测带、**AHP 层次结构图**（评价类建模必备）、色板总览图、风格对比图
+- **`save_gif()` 动画导出**：收敛过程、参数扫描一键生成 GIF
+- **中文零配置**：导入时自动扫描系统中文字体（雅黑/黑体/苹方/Noto CJK），中文标签不再出现方框
+- **性能**：色板缓存、大矩阵热力图自动关闭标注、空数据友好报错
+
+### v2.0 新增
+
+- **29 种新图表**：三维曲面、等高线、向量场、相图、优化轨迹（梯度下降路径）、双坐标轴、置信区间带、热力图、风玫瑰、Q-Q 图、经验分布、山脊图、六边形密度、气泡图、排名碰撞图（bump）、流图、漏斗图、华夫图、人口金字塔、旭日图、冰柱图、马赛克图、聚类树、分布诊断面板、散点矩阵……
+- **`panel_figure()` 多面板组合图**：自动 (a)(b)(c) 编号，Nature 风格
+- **`mmv` 命令行工具**：从 CSV 直接出图
+- **性能**：20 万点折线自动抽稀、色板向量化、无显示环境自动切 Agg 后端
+
+### 安装
+
+```bash
+pip install -r requirements.txt
+```
+
+详细的国赛/美赛图表布置策略见 [competition-strategy.md](references/competition-strategy.md)。
+
+---
+
+<div align="center">
+
+**如果这个库帮你省下了赶论文的凌晨三点，请给它一个 ⭐**
+
+Made with 📈 by the Math Modeling Viz community
+
+</div>
